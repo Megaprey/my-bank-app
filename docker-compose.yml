@@ -1,0 +1,166 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: bankdb
+      POSTGRES_USER: bank
+      POSTGRES_PASSWORD: bank
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bank -d bankdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  discovery-server:
+    build: ./discovery-server
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8761/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  config-server:
+    build: ./config-server
+    ports:
+      - "8888:8888"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8888/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  auth-server:
+    build: ./auth-server
+    ports:
+      - "9000:9000"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9000/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "9090:9090"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: http://auth-server:9000/oauth2/jwks
+    depends_on:
+      config-server:
+        condition: service_healthy
+      auth-server:
+        condition: service_healthy
+
+  accounts-service:
+    build: ./accounts-service
+    ports:
+      - "8081:8081"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bankdb?currentSchema=accounts
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: http://auth-server:9000/oauth2/jwks
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: http://auth-server:9000/oauth2/token
+    depends_on:
+      postgres:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      auth-server:
+        condition: service_healthy
+
+  cash-service:
+    build: ./cash-service
+    ports:
+      - "8082:8082"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: http://auth-server:9000/oauth2/jwks
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: http://auth-server:9000/oauth2/token
+    depends_on:
+      config-server:
+        condition: service_healthy
+      auth-server:
+        condition: service_healthy
+      accounts-service:
+        condition: service_started
+
+  transfer-service:
+    build: ./transfer-service
+    ports:
+      - "8083:8083"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: http://auth-server:9000/oauth2/jwks
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: http://auth-server:9000/oauth2/token
+    depends_on:
+      config-server:
+        condition: service_healthy
+      auth-server:
+        condition: service_healthy
+      accounts-service:
+        condition: service_started
+
+  notifications-service:
+    build: ./notifications-service
+    ports:
+      - "8084:8084"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bankdb?currentSchema=notifications
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: http://auth-server:9000/oauth2/jwks
+    depends_on:
+      postgres:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      auth-server:
+        condition: service_healthy
+
+  front-ui:
+    build: ./front-ui
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: http://auth-server:9000/oauth2/token
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_JWKSETURI: http://auth-server:9000/oauth2/jwks
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_USERINFOURI: http://auth-server:9000/userinfo
+      GATEWAY_URL: http://api-gateway:9090
+    depends_on:
+      config-server:
+        condition: service_healthy
+      auth-server:
+        condition: service_healthy
+      api-gateway:
+        condition: service_started
+
+volumes:
+  pgdata:

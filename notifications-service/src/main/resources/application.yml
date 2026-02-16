@@ -1,0 +1,20 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: notifications-service
+  config:
+    import: "optional:configserver:"
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bankdb?currentSchema=notifications
+    username: bank
+    password: bank
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: notifications
+  flyway:
+    schemas: notifications

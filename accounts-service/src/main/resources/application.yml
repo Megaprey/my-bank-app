@@ -1,0 +1,33 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: accounts-service
+  config:
+    import: "optional:configserver:"
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bankdb?currentSchema=accounts
+    username: bank
+    password: bank
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: accounts
+  flyway:
+    schemas: accounts
+  security:
+    oauth2:
+      client:
+        registration:
+          accounts-client:
+            provider: auth-server
+            client-id: accounts-client
+            client-secret: accounts-secret
+            authorization-grant-type: client_credentials
+            scope: notifications
+        provider:
+          auth-server:
+            token-uri: http://localhost:9000/oauth2/token

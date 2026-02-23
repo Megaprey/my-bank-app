@@ -1,6 +1,6 @@
 package com.bank.notifications.service;
 
-import com.bank.notifications.dto.NotificationDto;
+import com.bank.api.dto.NotificationDto;
 import com.bank.notifications.model.Notification;
 import com.bank.notifications.repository.NotificationRepository;
 import org.junit.jupiter.api.Test;

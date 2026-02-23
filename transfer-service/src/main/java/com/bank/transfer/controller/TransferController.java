@@ -22,11 +22,16 @@ public class TransferController {
     @PostMapping
     public ResponseEntity<TransferResponseDto> transfer(@Valid @RequestBody TransferDto dto) {
         return ResponseEntity.ok(
-                transferService.transfer(dto.getFromUsername(), dto.getToUsername(), dto.getAmount()));
+                transferService.transfer(dto.fromUsername(), dto.toUsername(), dto.amount()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, String>> handleError(IllegalArgumentException ex) {
+    public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalState(IllegalStateException ex) {
+        return ResponseEntity.status(503).body(Map.of("error", ex.getMessage()));
     }
 }

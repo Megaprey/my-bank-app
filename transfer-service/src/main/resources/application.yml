@@ -1,6 +1,36 @@
 server:
   port: 8083
 
+resilience4j:
+  circuitbreaker:
+    instances:
+      accountClient:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        sliding-window-size: 10
+      notificationClient:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        sliding-window-size: 10
+  retry:
+    instances:
+      accountClient:
+        max-attempts: 3
+        wait-duration: 500ms
+        retry-exceptions:
+          - org.springframework.web.reactive.function.client.WebClientResponseException
+          - java.io.IOException
+      notificationClient:
+        max-attempts: 3
+        wait-duration: 500ms
+        retry-exceptions:
+          - org.springframework.web.reactive.function.client.WebClientResponseException
+          - java.io.IOException
+
+logging:
+  level:
+    io.github.resilience4j: DEBUG
+
 spring:
   application:
     name: transfer-service

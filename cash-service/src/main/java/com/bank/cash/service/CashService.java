@@ -6,7 +6,6 @@ import com.bank.cash.dto.CashResponseDto;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Map;
 
 @Service
 public class CashService {
@@ -20,18 +19,16 @@ public class CashService {
     }
 
     public CashResponseDto deposit(String username, BigDecimal amount) {
-        Map<String, Object> account = accountClient.deposit(username, amount);
-        BigDecimal newBalance = new BigDecimal(account.get("balance").toString());
+        var account = accountClient.deposit(username, amount);
         String message = "Положено " + amount.intValue() + " руб";
         notificationClient.send(username, message);
-        return new CashResponseDto(message, newBalance);
+        return new CashResponseDto(message, account.balance());
     }
 
     public CashResponseDto withdraw(String username, BigDecimal amount) {
-        Map<String, Object> account = accountClient.withdraw(username, amount);
-        BigDecimal newBalance = new BigDecimal(account.get("balance").toString());
+        var account = accountClient.withdraw(username, amount);
         String message = "Снято " + amount.intValue() + " руб";
         notificationClient.send(username, message);
-        return new CashResponseDto(message, newBalance);
+        return new CashResponseDto(message, account.balance());
     }
 }

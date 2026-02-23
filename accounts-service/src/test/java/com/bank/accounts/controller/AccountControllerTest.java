@@ -1,9 +1,9 @@
 package com.bank.accounts.controller;
 
 import com.bank.accounts.client.NotificationClient;
-import com.bank.accounts.dto.AccountDto;
-import com.bank.accounts.dto.AccountShortDto;
 import com.bank.accounts.service.AccountService;
+import com.bank.api.dto.AccountDto;
+import com.bank.api.dto.AccountShortDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

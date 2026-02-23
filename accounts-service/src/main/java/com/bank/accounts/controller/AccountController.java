@@ -1,8 +1,11 @@
 package com.bank.accounts.controller;
 
 import com.bank.accounts.client.NotificationClient;
-import com.bank.accounts.dto.*;
+import com.bank.accounts.dto.AccountUpdateDto;
 import com.bank.accounts.service.AccountService;
+import com.bank.api.dto.AccountDto;
+import com.bank.api.dto.AccountShortDto;
+import com.bank.api.dto.BalanceOperationDto;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -49,14 +52,14 @@ public class AccountController {
     public ResponseEntity<AccountDto> deposit(
             @PathVariable String username,
             @Valid @RequestBody BalanceOperationDto dto) {
-        return ResponseEntity.ok(accountService.deposit(username, dto.getAmount()));
+        return ResponseEntity.ok(accountService.deposit(username, dto.amount()));
     }
 
     @PutMapping("/{username}/withdraw")
     public ResponseEntity<AccountDto> withdraw(
             @PathVariable String username,
             @Valid @RequestBody BalanceOperationDto dto) {
-        return ResponseEntity.ok(accountService.withdraw(username, dto.getAmount()));
+        return ResponseEntity.ok(accountService.withdraw(username, dto.amount()));
     }
 
     private String extractUsername(Jwt jwt) {

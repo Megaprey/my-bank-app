@@ -1,6 +1,6 @@
 package com.bank.notifications.controller;
 
-import com.bank.notifications.dto.NotificationDto;
+import com.bank.api.dto.NotificationDto;
 import com.bank.notifications.service.NotificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

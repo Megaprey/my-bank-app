@@ -1,7 +1,7 @@
 package com.bank.front.service;
 
-import com.bank.front.dto.AccountDto;
-import com.bank.front.dto.AccountShortDto;
+import com.bank.api.dto.AccountDto;
+import com.bank.api.dto.AccountShortDto;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -9,7 +9,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class AccountGatewayService {
@@ -31,11 +30,13 @@ public class AccountGatewayService {
     public AccountDto updateAccount(String fullName, LocalDate birthDate) {
         return webClient.put()
                 .uri("/api/accounts/me")
-                .bodyValue(Map.of("fullName", fullName, "birthDate", birthDate.toString()))
+                .bodyValue(new AccountUpdateRequest(fullName, birthDate))
                 .retrieve()
                 .bodyToMono(AccountDto.class)
                 .block();
     }
+
+    private record AccountUpdateRequest(String fullName, LocalDate birthDate) {}
 
     public List<AccountShortDto> getOtherAccounts() {
         try {

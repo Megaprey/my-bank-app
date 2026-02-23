@@ -1,7 +1,9 @@
 package com.bank.accounts.service;
 
-import com.bank.accounts.dto.*;
+import com.bank.accounts.dto.AccountUpdateDto;
 import com.bank.accounts.model.Account;
+import com.bank.api.dto.AccountDto;
+import com.bank.api.dto.AccountShortDto;
 import com.bank.accounts.repository.AccountRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,8 +31,8 @@ public class AccountService {
 
     @Transactional
     public AccountDto updateAccount(String username, AccountUpdateDto dto) {
-        if (dto.getBirthDate() != null) {
-            int age = Period.between(dto.getBirthDate(), LocalDate.now()).getYears();
+        if (dto.birthDate() != null) {
+            int age = Period.between(dto.birthDate(), LocalDate.now()).getYears();
             if (age < 18) {
                 throw new IllegalArgumentException("Возраст должен быть старше 18 лет");
             }
@@ -38,8 +40,8 @@ public class AccountService {
 
         Account account = accountRepository.findByUsername(username)
                 .orElseGet(() -> createDefaultAccount(username));
-        account.setFullName(dto.getFullName());
-        account.setBirthDate(dto.getBirthDate());
+        account.setFullName(dto.fullName());
+        account.setBirthDate(dto.birthDate());
         account = accountRepository.save(account);
         return toDto(account);
     }

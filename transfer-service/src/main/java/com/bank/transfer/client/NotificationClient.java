@@ -1,11 +1,12 @@
 package com.bank.transfer.client;
 
+import com.bank.api.dto.NotificationDto;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.Map;
 
 @Component
 public class NotificationClient {
@@ -18,16 +19,19 @@ public class NotificationClient {
         this.webClient = webClient;
     }
 
+    @CircuitBreaker(name = "notificationClient", fallbackMethod = "sendFallback")
+    @Retry(name = "notificationClient")
     public void send(String username, String message) {
-        try {
-            webClient.post()
-                    .uri("http://notifications-service/api/notifications")
-                    .bodyValue(Map.of("username", username, "message", message))
-                    .retrieve()
-                    .toBodilessEntity()
-                    .block();
-        } catch (Exception e) {
-            log.warn("Не удалось отправить уведомление: {}", e.getMessage());
-        }
+        webClient.post()
+                .uri("http://notifications-service/api/notifications")
+                .bodyValue(new NotificationDto(username, message))
+                .retrieve()
+                .toBodilessEntity()
+                .block();
+    }
+
+    @SuppressWarnings("unused")
+    private void sendFallback(String username, String message, Exception e) {
+        log.warn("[NotificationClient.send] fallback triggered, notification skipped: {}", e.getMessage());
     }
 }

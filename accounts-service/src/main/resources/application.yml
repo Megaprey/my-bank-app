@@ -1,6 +1,22 @@
 server:
   port: 8081
 
+resilience4j:
+  circuitbreaker:
+    instances:
+      notificationClient:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        sliding-window-size: 10
+  retry:
+    instances:
+      notificationClient:
+        max-attempts: 3
+        wait-duration: 500ms
+        retry-exceptions:
+          - org.springframework.web.reactive.function.client.WebClientResponseException
+          - java.io.IOException
+
 spring:
   application:
     name: accounts-service

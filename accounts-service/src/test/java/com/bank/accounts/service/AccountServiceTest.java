@@ -1,7 +1,7 @@
 package com.bank.accounts.service;
 
-import com.bank.accounts.dto.AccountDto;
 import com.bank.accounts.dto.AccountUpdateDto;
+import com.bank.api.dto.AccountDto;
 import com.bank.accounts.model.Account;
 import com.bank.accounts.repository.AccountRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,9 +47,9 @@ class AccountServiceTest {
 
         AccountDto dto = accountService.getAccount("ivanov");
 
-        assertEquals("ivanov", dto.getUsername());
-        assertEquals("Иванов Иван", dto.getFullName());
-        assertEquals(new BigDecimal("100.00"), dto.getBalance());
+        assertEquals("ivanov", dto.username());
+        assertEquals("Иванов Иван", dto.fullName());
+        assertEquals(new BigDecimal("100.00"), dto.balance());
     }
 
     @Test
@@ -57,9 +57,7 @@ class AccountServiceTest {
         when(accountRepository.findByUsername("ivanov")).thenReturn(Optional.of(testAccount));
         when(accountRepository.save(any(Account.class))).thenReturn(testAccount);
 
-        AccountUpdateDto updateDto = new AccountUpdateDto();
-        updateDto.setFullName("Иванов Иван Иванович");
-        updateDto.setBirthDate(LocalDate.of(2000, 6, 15));
+        AccountUpdateDto updateDto = new AccountUpdateDto("Иванов Иван Иванович", LocalDate.of(2000, 6, 15));
 
         AccountDto result = accountService.updateAccount("ivanov", updateDto);
 
@@ -68,9 +66,7 @@ class AccountServiceTest {
 
     @Test
     void updateAccount_underAge_throwsException() {
-        AccountUpdateDto updateDto = new AccountUpdateDto();
-        updateDto.setFullName("Иванов Иван");
-        updateDto.setBirthDate(LocalDate.now().minusYears(17));
+        AccountUpdateDto updateDto = new AccountUpdateDto("Иванов Иван", LocalDate.now().minusYears(17));
 
         assertThrows(IllegalArgumentException.class,
                 () -> accountService.updateAccount("ivanov", updateDto));
@@ -83,7 +79,7 @@ class AccountServiceTest {
 
         AccountDto result = accountService.deposit("ivanov", new BigDecimal("50.00"));
 
-        assertEquals(new BigDecimal("150.00"), result.getBalance());
+        assertEquals(new BigDecimal("150.00"), result.balance());
     }
 
     @Test
@@ -93,7 +89,7 @@ class AccountServiceTest {
 
         AccountDto result = accountService.withdraw("ivanov", new BigDecimal("50.00"));
 
-        assertEquals(new BigDecimal("50.00"), result.getBalance());
+        assertEquals(new BigDecimal("50.00"), result.balance());
     }
 
     @Test
@@ -115,6 +111,6 @@ class AccountServiceTest {
         var result = accountService.getOtherAccounts("ivanov");
 
         assertEquals(1, result.size());
-        assertEquals("petrov", result.get(0).getUsername());
+        assertEquals("petrov", result.get(0).username());
     }
 }

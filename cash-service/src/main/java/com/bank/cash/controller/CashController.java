@@ -21,12 +21,12 @@ public class CashController {
 
     @PostMapping("/deposit")
     public ResponseEntity<CashResponseDto> deposit(@Valid @RequestBody CashOperationDto dto) {
-        return ResponseEntity.ok(cashService.deposit(dto.getUsername(), dto.getAmount()));
+        return ResponseEntity.ok(cashService.deposit(dto.username(), dto.amount()));
     }
 
     @PostMapping("/withdraw")
     public ResponseEntity<CashResponseDto> withdraw(@Valid @RequestBody CashOperationDto dto) {
-        return ResponseEntity.ok(cashService.withdraw(dto.getUsername(), dto.getAmount()));
+        return ResponseEntity.ok(cashService.withdraw(dto.username(), dto.amount()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

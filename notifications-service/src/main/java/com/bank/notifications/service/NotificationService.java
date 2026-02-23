@@ -1,6 +1,6 @@
 package com.bank.notifications.service;
 
-import com.bank.notifications.dto.NotificationDto;
+import com.bank.api.dto.NotificationDto;
 import com.bank.notifications.model.Notification;
 import com.bank.notifications.repository.NotificationRepository;
 import org.slf4j.Logger;
@@ -19,8 +19,8 @@ public class NotificationService {
     }
 
     public void send(NotificationDto dto) {
-        Notification notification = new Notification(dto.getUsername(), dto.getMessage());
+        Notification notification = new Notification(dto.username(), dto.message());
         notificationRepository.save(notification);
-        log.warn("УВЕДОМЛЕНИЕ [{}]: {}", dto.getUsername(), dto.getMessage());
+        log.warn("УВЕДОМЛЕНИЕ [{}]: {}", dto.username(), dto.message());
     }
 }

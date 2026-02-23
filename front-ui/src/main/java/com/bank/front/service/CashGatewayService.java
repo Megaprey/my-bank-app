@@ -1,14 +1,18 @@
 package com.bank.front.service;
 
+import com.bank.front.dto.CashResponseDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.math.BigDecimal;
-import java.util.Map;
 
 @Service
 public class CashGatewayService {
+
+    private static final Logger log = LoggerFactory.getLogger(CashGatewayService.class);
 
     private final WebClient webClient;
 
@@ -16,27 +20,34 @@ public class CashGatewayService {
         this.webClient = webClient;
     }
 
-    public Map<String, Object> deposit(String username, BigDecimal amount) {
-        return webClient.post()
+    public CashResponseDto deposit(String username, BigDecimal amount) {
+        log.debug("[CashGatewayService.deposit] username={}, amount={}", username, amount);
+        CashResponseDto result = webClient.post()
                 .uri("/api/cash/deposit")
-                .bodyValue(Map.of("username", username, "amount", amount))
+                .bodyValue(new CashRequest(username, amount))
                 .retrieve()
-                .bodyToMono(Map.class)
-                .map(m -> (Map<String, Object>) m)
+                .bodyToMono(CashResponseDto.class)
                 .block();
+        log.info("[CashGatewayService.deposit] success");
+        return result;
     }
 
-    public Map<String, Object> withdraw(String username, BigDecimal amount) {
+    public CashResponseDto withdraw(String username, BigDecimal amount) {
+        log.debug("[CashGatewayService.withdraw] username={}, amount={}", username, amount);
         try {
-            return webClient.post()
+            CashResponseDto result = webClient.post()
                     .uri("/api/cash/withdraw")
-                    .bodyValue(Map.of("username", username, "amount", amount))
+                    .bodyValue(new CashRequest(username, amount))
                     .retrieve()
-                    .bodyToMono(Map.class)
-                    .map(m -> (Map<String, Object>) m)
+                    .bodyToMono(CashResponseDto.class)
                     .block();
+            log.info("[CashGatewayService.withdraw] success");
+            return result;
         } catch (WebClientResponseException.BadRequest e) {
+            log.error("[CashGatewayService.withdraw] failed username={}, amount={}", username, amount);
             throw new IllegalArgumentException("Недостаточно средств на счету");
         }
     }
+
+    private record CashRequest(String username, BigDecimal amount) {}
 }

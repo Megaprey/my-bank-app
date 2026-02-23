@@ -1,7 +1,7 @@
 package com.bank.front.controller;
 
-import com.bank.front.dto.AccountDto;
-import com.bank.front.dto.AccountShortDto;
+import com.bank.api.dto.AccountDto;
+import com.bank.api.dto.AccountShortDto;
 import com.bank.front.dto.MainPageDto;
 import com.bank.front.service.AccountGatewayService;
 import com.bank.front.service.CashGatewayService;
@@ -15,7 +15,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 public class MainController {
@@ -34,8 +33,12 @@ public class MainController {
 
     @GetMapping({"/", "/account"})
     public String account(Model model) {
-        MainPageDto dto = buildPageDto(null, null);
+        String successMessage = (String) model.getAttribute("successMessage");
+        String errorMessage = (String) model.getAttribute("errorMessage");
+        MainPageDto dto = buildPageDto(successMessage, errorMessage);
         model.addAttribute("page", dto);
+        model.addAttribute("successMessage", dto.successMessage());
+        model.addAttribute("errorMessage", dto.errorMessage());
         return "main";
     }
 
@@ -58,8 +61,8 @@ public class MainController {
                           RedirectAttributes redirectAttributes) {
         try {
             AccountDto account = accountService.getMyAccount();
-            Map<String, Object> result = cashService.deposit(account.getUsername(), amount);
-            redirectAttributes.addFlashAttribute("successMessage", result.get("message"));
+            var result = cashService.deposit(account.username(), amount);
+            redirectAttributes.addFlashAttribute("successMessage", result.message());
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", extractError(e));
         }
@@ -71,8 +74,8 @@ public class MainController {
                            RedirectAttributes redirectAttributes) {
         try {
             AccountDto account = accountService.getMyAccount();
-            Map<String, Object> result = cashService.withdraw(account.getUsername(), amount);
-            redirectAttributes.addFlashAttribute("successMessage", result.get("message"));
+            var result = cashService.withdraw(account.username(), amount);
+            redirectAttributes.addFlashAttribute("successMessage", result.message());
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", extractError(e));
         }
@@ -85,9 +88,9 @@ public class MainController {
                            RedirectAttributes redirectAttributes) {
         try {
             AccountDto account = accountService.getMyAccount();
-            Map<String, Object> result = transferService.transfer(
-                    account.getUsername(), toUsername, amount);
-            redirectAttributes.addFlashAttribute("successMessage", result.get("message"));
+            var result = transferService.transfer(
+                    account.username(), toUsername, amount);
+            redirectAttributes.addFlashAttribute("successMessage", result.message());
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", extractError(e));
         }
@@ -95,21 +98,23 @@ public class MainController {
     }
 
     private MainPageDto buildPageDto(String successMessage, String errorMessage) {
-        MainPageDto dto = new MainPageDto();
+        String fullName = null;
+        LocalDate birthDate = null;
+        BigDecimal balance = null;
+        List<AccountShortDto> otherAccounts = null;
+        String errorFromLoad = null;
         try {
             AccountDto account = accountService.getMyAccount();
-            dto.setFullName(account.getFullName());
-            dto.setBirthDate(account.getBirthDate());
-            dto.setBalance(account.getBalance());
-
-            List<AccountShortDto> others = accountService.getOtherAccounts();
-            dto.setOtherAccounts(others);
+            fullName = account.fullName();
+            birthDate = account.birthDate();
+            balance = account.balance();
+            otherAccounts = accountService.getOtherAccounts();
         } catch (Exception e) {
-            dto.setErrorMessage("Ошибка загрузки данных: " + e.getMessage());
+            errorFromLoad = "Ошибка загрузки данных: " + e.getMessage();
         }
-        dto.setSuccessMessage(successMessage);
-        dto.setErrorMessage(errorMessage);
-        return dto;
+        String finalError = errorMessage != null ? errorMessage : errorFromLoad;
+        return new MainPageDto(fullName, birthDate, balance, null, null, null,
+                otherAccounts, successMessage, finalError);
     }
 
     private String extractError(Exception e) {
@@ -121,7 +126,7 @@ public class MainController {
                 return message.substring(start, end);
             }
         }
-        if (e instanceof IllegalArgumentException) {
+        if (e instanceof IllegalArgumentException || e instanceof IllegalStateException) {
             return message;
         }
         return "Произошла ошибка";

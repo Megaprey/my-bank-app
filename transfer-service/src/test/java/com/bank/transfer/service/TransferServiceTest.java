@@ -1,5 +1,6 @@
 package com.bank.transfer.service;
 
+import com.bank.api.dto.AccountDto;
 import com.bank.transfer.client.AccountClient;
 import com.bank.transfer.client.NotificationClient;
 import com.bank.transfer.dto.TransferResponseDto;
@@ -10,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -31,15 +31,15 @@ class TransferServiceTest {
     @Test
     void transfer_success() {
         when(accountClient.withdraw("ivanov", new BigDecimal("100")))
-                .thenReturn(Map.of("balance", 0.0, "username", "ivanov", "fullName", "Иванов Иван"));
+                .thenReturn(new AccountDto(1L, "ivanov", "Иванов Иван", null, BigDecimal.ZERO));
         when(accountClient.deposit("petrov", new BigDecimal("100")))
-                .thenReturn(Map.of("balance", 200.0, "username", "petrov", "fullName", "Петров Петр"));
+                .thenReturn(new AccountDto(2L, "petrov", "Петров Петр", null, new BigDecimal("200")));
 
         TransferResponseDto result = transferService.transfer("ivanov", "petrov", new BigDecimal("100"));
 
         assertNotNull(result);
-        assertEquals(new BigDecimal("0.0"), result.getNewBalance());
-        assertTrue(result.getMessage().contains("Петров Петр"));
+        assertEquals(0, BigDecimal.ZERO.compareTo(result.newBalance()));
+        assertTrue(result.message().contains("Петров Петр"));
         verify(notificationClient, times(2)).send(anyString(), anyString());
     }
 
@@ -50,5 +50,21 @@ class TransferServiceTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> transferService.transfer("ivanov", "petrov", new BigDecimal("500")));
+    }
+
+    @Test
+    void transfer_depositFails_compensatesAndThrows() {
+        when(accountClient.withdraw("ivanov", new BigDecimal("100")))
+                .thenReturn(new AccountDto(1L, "ivanov", "Иванов Иван", null, BigDecimal.ZERO));
+        when(accountClient.deposit("petrov", new BigDecimal("100")))
+                .thenThrow(new RuntimeException("Service unavailable"));
+        when(accountClient.deposit("ivanov", new BigDecimal("100")))
+                .thenReturn(new AccountDto(1L, "ivanov", "Иванов Иван", null, new BigDecimal("100")));
+
+        var ex = assertThrows(IllegalStateException.class,
+                () -> transferService.transfer("ivanov", "petrov", new BigDecimal("100")));
+
+        assertTrue(ex.getMessage().contains("Перевод отменён"));
+        verify(accountClient).deposit("ivanov", new BigDecimal("100"));
     }
 }

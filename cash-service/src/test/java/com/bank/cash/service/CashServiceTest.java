@@ -1,5 +1,6 @@
 package com.bank.cash.service;
 
+import com.bank.api.dto.AccountDto;
 import com.bank.cash.client.AccountClient;
 import com.bank.cash.client.NotificationClient;
 import com.bank.cash.dto.CashResponseDto;
@@ -10,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -31,25 +31,25 @@ class CashServiceTest {
     @Test
     void deposit_success() {
         when(accountClient.deposit("ivanov", new BigDecimal("100")))
-                .thenReturn(Map.of("balance", 200.0, "username", "ivanov"));
+                .thenReturn(new AccountDto(1L, "ivanov", "Иванов Иван", null, new BigDecimal("200")));
 
         CashResponseDto result = cashService.deposit("ivanov", new BigDecimal("100"));
 
         assertNotNull(result);
-        assertEquals(new BigDecimal("200.0"), result.getNewBalance());
-        assertTrue(result.getMessage().contains("100"));
+        assertEquals(0, new BigDecimal("200").compareTo(result.newBalance()));
+        assertTrue(result.message().contains("100"));
         verify(notificationClient).send(eq("ivanov"), anyString());
     }
 
     @Test
     void withdraw_success() {
         when(accountClient.withdraw("ivanov", new BigDecimal("50")))
-                .thenReturn(Map.of("balance", 50.0, "username", "ivanov"));
+                .thenReturn(new AccountDto(1L, "ivanov", "Иванов Иван", null, new BigDecimal("50")));
 
         CashResponseDto result = cashService.withdraw("ivanov", new BigDecimal("50"));
 
         assertNotNull(result);
-        assertEquals(new BigDecimal("50.0"), result.getNewBalance());
+        assertEquals(0, new BigDecimal("50").compareTo(result.newBalance()));
         verify(notificationClient).send(eq("ivanov"), anyString());
     }
 

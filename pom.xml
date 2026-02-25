@@ -27,10 +27,7 @@
 
     <modules>
         <module>bank-api</module>
-        <module>discovery-server</module>
-        <module>config-server</module>
         <module>auth-server</module>
-        <module>api-gateway</module>
         <module>accounts-service</module>
         <module>cash-service</module>
         <module>transfer-service</module>

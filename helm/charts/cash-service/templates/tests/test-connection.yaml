@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "cash-service.fullname" . }}-test"
+  labels:
+    {{- include "cash-service.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget-test
+      image: busybox:1.36
+      command: ['wget', '--spider', '--timeout=5', 'http://{{ include "cash-service.fullname" . }}:8082/actuator/health']
+  restartPolicy: Never

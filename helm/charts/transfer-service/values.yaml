@@ -1,0 +1,27 @@
+replicaCount: 1
+
+image:
+  repository: bank/transfer-service
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8083
+
+env:
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: "http://bank-auth-server:9000/oauth2/jwks"
+  SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: "http://bank-auth-server:9000/oauth2/token"
+  ACCOUNTS_SERVICE_URL: "http://bank-accounts-service:8081"
+  NOTIFICATIONS_SERVICE_URL: "http://bank-notifications-service:8084"
+  OAUTH2_CLIENT_ID: "transfer-client"
+  OAUTH2_CLIENT_SECRET: "transfer-secret"
+  LOG_LEVEL: "INFO"
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 384Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

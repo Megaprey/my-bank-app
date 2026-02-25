@@ -1,0 +1,24 @@
+{
+  "id" : "046906b0-75e4-497c-8031-02a057074f2a",
+  "request" : {
+    "urlPath" : "/api/accounts/ivanov/withdraw",
+    "method" : "PUT",
+    "headers" : {
+      "Content-Type" : {
+        "matches" : "application/json.*"
+      }
+    },
+    "bodyPatterns" : [ {
+      "matchesJsonPath" : "$[?(@.['amount'] == 50)]"
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"id\":1,\"username\":\"ivanov\",\"fullName\":\"Иванов Иван\",\"birthDate\":\"2001-01-01\",\"balance\":50.00}",
+    "headers" : {
+      "Content-Type" : "application/json"
+    },
+    "transformers" : [ "response-template", "spring-cloud-contract" ]
+  },
+  "uuid" : "046906b0-75e4-497c-8031-02a057074f2a"
+}

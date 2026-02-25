@@ -1,0 +1,25 @@
+image:
+  repository: postgres
+  tag: "16-alpine"
+  pullPolicy: IfNotPresent
+
+database:
+  name: bankdb
+  user: bank
+  password: bank
+  schema: accounts
+
+storage:
+  size: 1Gi
+  storageClassName: ""
+
+service:
+  port: 5432
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

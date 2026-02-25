@@ -1,7 +1,5 @@
 spring:
   cloud:
-    config:
-      enabled: false
     contract:
       stubrunner:
         ids: com.bank:accounts-service:${project.version}:stubs:8081
@@ -10,6 +8,8 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
 
-eureka:
-  client:
-    enabled: false
+services:
+  accounts:
+    url: http://localhost:8081
+  notifications:
+    url: http://localhost:8084

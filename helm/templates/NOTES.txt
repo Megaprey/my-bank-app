@@ -1,0 +1,41 @@
+=======================================================
+  Bank Application has been deployed!
+=======================================================
+
+Release: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+Deployed components:
+  - accounts-db (PostgreSQL StatefulSet)
+  - notifications-db (PostgreSQL StatefulSet)
+  - auth-server (OAuth 2.0 Authorization Server)
+  - accounts-service
+  - cash-service
+  - transfer-service
+  - notifications-service
+  - front-ui
+
+{{- if .Values.ingress.enabled }}
+
+Ingress is enabled.
+Access the application at: http://{{ .Values.ingress.host }}
+
+To verify Ingress:
+  kubectl get ingress -n {{ .Release.Namespace }}
+
+{{- else }}
+
+Ingress is disabled. Use port-forward to access services:
+  kubectl port-forward svc/{{ .Release.Name }}-front-ui 8080:8080 -n {{ .Release.Namespace }}
+
+{{- end }}
+
+To check all pods:
+  kubectl get pods -n {{ .Release.Namespace }}
+
+To view logs:
+  kubectl logs -f deployment/{{ .Release.Name }}-accounts-service -n {{ .Release.Namespace }}
+  kubectl logs -f deployment/{{ .Release.Name }}-auth-server -n {{ .Release.Namespace }}
+
+To run Helm tests:
+  helm test {{ .Release.Name }} -n {{ .Release.Namespace }}

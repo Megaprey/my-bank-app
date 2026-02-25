@@ -14,8 +14,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 
-    @Value("${gateway.url:http://localhost:9090}")
-    private String gatewayUrl;
+    @Value("${services.accounts.url:http://localhost:8081}")
+    private String accountsServiceUrl;
+
+    @Value("${services.cash.url:http://localhost:8082}")
+    private String cashServiceUrl;
+
+    @Value("${services.transfer.url:http://localhost:8083}")
+    private String transferServiceUrl;
 
     @Bean
     public OAuth2AuthorizedClientManager authorizedClientManager(
@@ -34,14 +40,28 @@ public class WebClientConfig {
         return authorizedClientManager;
     }
 
-    @Bean
-    public WebClient webClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+    @Bean("accountsWebClient")
+    public WebClient accountsWebClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+        return createWebClient(authorizedClientManager, accountsServiceUrl);
+    }
+
+    @Bean("cashWebClient")
+    public WebClient cashWebClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+        return createWebClient(authorizedClientManager, cashServiceUrl);
+    }
+
+    @Bean("transferWebClient")
+    public WebClient transferWebClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+        return createWebClient(authorizedClientManager, transferServiceUrl);
+    }
+
+    private WebClient createWebClient(OAuth2AuthorizedClientManager authorizedClientManager, String baseUrl) {
         ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2Client =
                 new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
         oauth2Client.setDefaultOAuth2AuthorizedClient(true);
 
         return WebClient.builder()
-                .baseUrl(gatewayUrl)
+                .baseUrl(baseUrl)
                 .apply(oauth2Client.oauth2Configuration())
                 .build();
     }

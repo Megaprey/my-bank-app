@@ -1,0 +1,30 @@
+replicaCount: 1
+
+image:
+  repository: bank/front-ui
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+env:
+  SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_AUTHORIZATIONURI: "http://localhost:9000/oauth2/authorize"
+  SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: "http://bank-auth-server:9000/oauth2/token"
+  SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_JWKSETURI: "http://bank-auth-server:9000/oauth2/jwks"
+  SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_USERINFOURI: "http://bank-auth-server:9000/userinfo"
+  ACCOUNTS_SERVICE_URL: "http://bank-accounts-service:8081"
+  CASH_SERVICE_URL: "http://bank-cash-service:8082"
+  TRANSFER_SERVICE_URL: "http://bank-transfer-service:8083"
+  OAUTH2_CLIENT_ID: "front-ui-client"
+  OAUTH2_CLIENT_SECRET: "front-ui-secret"
+  LOG_LEVEL: "INFO"
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 384Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

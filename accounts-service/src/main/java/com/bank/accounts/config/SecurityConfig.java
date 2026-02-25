@@ -15,6 +15,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/api/accounts/me", "/api/accounts/others")
                         .hasAuthority("SCOPE_accounts")
                         .requestMatchers("/api/accounts/*/deposit", "/api/accounts/*/withdraw")

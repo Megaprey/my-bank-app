@@ -1,0 +1,24 @@
+{
+  "id" : "d7cc59aa-d158-42fe-a60d-9d2d69078202",
+  "request" : {
+    "urlPath" : "/api/accounts/ivanov/withdraw",
+    "method" : "PUT",
+    "headers" : {
+      "Content-Type" : {
+        "matches" : "application/json.*"
+      }
+    },
+    "bodyPatterns" : [ {
+      "matchesJsonPath" : "$[?(@.['amount'] == 500)]"
+    } ]
+  },
+  "response" : {
+    "status" : 400,
+    "body" : "{\"error\":\"Недостаточно средств на счету\"}",
+    "headers" : {
+      "Content-Type" : "application/json"
+    },
+    "transformers" : [ "response-template", "spring-cloud-contract" ]
+  },
+  "uuid" : "d7cc59aa-d158-42fe-a60d-9d2d69078202"
+}

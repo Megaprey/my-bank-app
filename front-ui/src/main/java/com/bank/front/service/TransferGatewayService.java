@@ -3,6 +3,7 @@ package com.bank.front.service;
 import com.bank.front.dto.TransferResponseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -16,7 +17,7 @@ public class TransferGatewayService {
 
     private final WebClient webClient;
 
-    public TransferGatewayService(WebClient webClient) {
+    public TransferGatewayService(@Qualifier("transferWebClient") WebClient webClient) {
         this.webClient = webClient;
     }
 

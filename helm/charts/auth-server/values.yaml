@@ -1,0 +1,23 @@
+replicaCount: 1
+
+image:
+  repository: bank/auth-server
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 9000
+
+env:
+  AUTH_ISSUER_URI: "http://auth-server:9000"
+  FRONT_UI_REDIRECT_URI: "http://localhost:8080/login/oauth2/code/front-ui-client"
+  LOG_LEVEL: "INFO"
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 384Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

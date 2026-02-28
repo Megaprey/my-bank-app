@@ -1,0 +1,97 @@
+pipeline {
+    agent any
+
+    environment {
+        SERVICE_NAME = 'accounts-service'
+        DOCKER_IMAGE = "bank/${SERVICE_NAME}"
+        HELM_CHART = "helm/charts/${SERVICE_NAME}"
+        DOCKER_REGISTRY = credentials('docker-registry-url')
+    }
+
+    stages {
+        stage('Validate') {
+            steps {
+                echo "[${SERVICE_NAME}] Validating Helm chart..."
+                sh "helm lint ${HELM_CHART}"
+                sh "helm template test-release ${HELM_CHART} | kubectl apply --dry-run=client -f -"
+                echo "[${SERVICE_NAME}] Helm chart validation passed"
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo "[${SERVICE_NAME}] Building with Maven..."
+                sh "mvn clean package -pl bank-api,${SERVICE_NAME} -am -DskipTests"
+                echo "[${SERVICE_NAME}] Build completed"
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo "[${SERVICE_NAME}] Running tests..."
+                sh "mvn test -pl ${SERVICE_NAME}"
+                echo "[${SERVICE_NAME}] Tests passed"
+            }
+            post {
+                always {
+                    junit "${SERVICE_NAME}/target/surefire-reports/*.xml"
+                }
+            }
+        }
+
+        stage('Docker Build & Push') {
+            steps {
+                echo "[${SERVICE_NAME}] Building Docker image..."
+                sh "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} -t ${DOCKER_IMAGE}:latest ${SERVICE_NAME}/"
+                echo "[${SERVICE_NAME}] Pushing Docker image..."
+                sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                sh "docker push ${DOCKER_IMAGE}:latest"
+                echo "[${SERVICE_NAME}] Docker image pushed"
+            }
+        }
+
+        stage('Deploy to Test') {
+            steps {
+                echo "[${SERVICE_NAME}] Deploying to test namespace..."
+                sh """
+                    helm upgrade --install ${SERVICE_NAME} ${HELM_CHART} \
+                        --namespace test \
+                        --create-namespace \
+                        --set image.tag=${BUILD_NUMBER} \
+                        --wait --timeout 300s
+                """
+                echo "[${SERVICE_NAME}] Deployed to test namespace"
+            }
+        }
+
+        stage('Deploy to Prod') {
+            when {
+                branch 'master'
+            }
+            input {
+                message "Deploy ${SERVICE_NAME} to production?"
+                ok "Deploy"
+            }
+            steps {
+                echo "[${SERVICE_NAME}] Deploying to prod namespace..."
+                sh """
+                    helm upgrade --install ${SERVICE_NAME} ${HELM_CHART} \
+                        --namespace prod \
+                        --create-namespace \
+                        --set image.tag=${BUILD_NUMBER} \
+                        --wait --timeout 300s
+                """
+                echo "[${SERVICE_NAME}] Deployed to prod namespace"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "[${SERVICE_NAME}] Pipeline completed successfully"
+        }
+        failure {
+            echo "[${SERVICE_NAME}] Pipeline failed"
+        }
+    }
+}

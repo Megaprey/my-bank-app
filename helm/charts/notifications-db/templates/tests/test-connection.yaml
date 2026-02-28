@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "notifications-db.fullname" . }}-test"
+  labels:
+    {{- include "notifications-db.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: pg-test
+      image: postgres:16-alpine
+      command: ['pg_isready', '-h', '{{ include "notifications-db.fullname" . }}', '-p', '5432', '-U', '{{ .Values.database.user }}']
+  restartPolicy: Never

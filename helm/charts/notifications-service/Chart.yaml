@@ -1,0 +1,6 @@
+apiVersion: v2
+name: notifications-service
+description: Microservice for notifications
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

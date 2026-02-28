@@ -1,0 +1,68 @@
+ingress:
+  enabled: true
+  host: bank-test.local
+
+auth-server:
+  replicaCount: 1
+  env:
+    AUTH_ISSUER_URI: "http://bank-auth-server:9000"
+    FRONT_UI_REDIRECT_URI: "http://bank-test.local/login/oauth2/code/front-ui-client"
+    LOG_LEVEL: "INFO"
+
+accounts-service:
+  replicaCount: 1
+  env:
+    SPRING_DATASOURCE_URL: "jdbc:postgresql://bank-accounts-db:5432/bankdb?currentSchema=accounts"
+    SPRING_DATASOURCE_USERNAME: "bank"
+    SPRING_DATASOURCE_PASSWORD: "bank"
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: "http://bank-auth-server:9000/oauth2/jwks"
+    SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: "http://bank-auth-server:9000/oauth2/token"
+    NOTIFICATIONS_SERVICE_URL: "http://bank-notifications-service:8084"
+    OAUTH2_CLIENT_ID: "accounts-client"
+    OAUTH2_CLIENT_SECRET: "accounts-secret"
+    LOG_LEVEL: "INFO"
+
+cash-service:
+  replicaCount: 1
+  env:
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: "http://bank-auth-server:9000/oauth2/jwks"
+    SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: "http://bank-auth-server:9000/oauth2/token"
+    ACCOUNTS_SERVICE_URL: "http://bank-accounts-service:8081"
+    NOTIFICATIONS_SERVICE_URL: "http://bank-notifications-service:8084"
+    OAUTH2_CLIENT_ID: "cash-client"
+    OAUTH2_CLIENT_SECRET: "cash-secret"
+    LOG_LEVEL: "INFO"
+
+transfer-service:
+  replicaCount: 1
+  env:
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: "http://bank-auth-server:9000/oauth2/jwks"
+    SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: "http://bank-auth-server:9000/oauth2/token"
+    ACCOUNTS_SERVICE_URL: "http://bank-accounts-service:8081"
+    NOTIFICATIONS_SERVICE_URL: "http://bank-notifications-service:8084"
+    OAUTH2_CLIENT_ID: "transfer-client"
+    OAUTH2_CLIENT_SECRET: "transfer-secret"
+    LOG_LEVEL: "INFO"
+
+notifications-service:
+  replicaCount: 1
+  env:
+    SPRING_DATASOURCE_URL: "jdbc:postgresql://bank-notifications-db:5432/bankdb?currentSchema=notifications"
+    SPRING_DATASOURCE_USERNAME: "bank"
+    SPRING_DATASOURCE_PASSWORD: "bank"
+    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: "http://bank-auth-server:9000/oauth2/jwks"
+    LOG_LEVEL: "INFO"
+
+front-ui:
+  replicaCount: 1
+  env:
+    SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_AUTHORIZATIONURI: "http://bank-test.local/oauth2/authorize"
+    SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: "http://bank-auth-server:9000/oauth2/token"
+    SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_JWKSETURI: "http://bank-auth-server:9000/oauth2/jwks"
+    SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_USERINFOURI: "http://bank-auth-server:9000/userinfo"
+    ACCOUNTS_SERVICE_URL: "http://bank-accounts-service:8081"
+    CASH_SERVICE_URL: "http://bank-cash-service:8082"
+    TRANSFER_SERVICE_URL: "http://bank-transfer-service:8083"
+    OAUTH2_CLIENT_ID: "front-ui-client"
+    OAUTH2_CLIENT_SECRET: "front-ui-secret"
+    LOG_LEVEL: "INFO"

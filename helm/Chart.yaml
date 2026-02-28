@@ -1,0 +1,32 @@
+apiVersion: v2
+name: bank-app
+description: Umbrella Helm chart for Bank microservices application
+type: application
+version: 2.0.0
+appVersion: "2.0.0"
+
+dependencies:
+  - name: accounts-db
+    version: 1.0.0
+    repository: "file://charts/accounts-db"
+  - name: notifications-db
+    version: 1.0.0
+    repository: "file://charts/notifications-db"
+  - name: auth-server
+    version: 1.0.0
+    repository: "file://charts/auth-server"
+  - name: accounts-service
+    version: 1.0.0
+    repository: "file://charts/accounts-service"
+  - name: cash-service
+    version: 1.0.0
+    repository: "file://charts/cash-service"
+  - name: transfer-service
+    version: 1.0.0
+    repository: "file://charts/transfer-service"
+  - name: notifications-service
+    version: 1.0.0
+    repository: "file://charts/notifications-service"
+  - name: front-ui
+    version: 1.0.0
+    repository: "file://charts/front-ui"

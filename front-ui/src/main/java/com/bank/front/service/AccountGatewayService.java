@@ -2,6 +2,7 @@ package com.bank.front.service;
 
 import com.bank.api.dto.AccountDto;
 import com.bank.api.dto.AccountShortDto;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -15,7 +16,7 @@ public class AccountGatewayService {
 
     private final WebClient webClient;
 
-    public AccountGatewayService(WebClient webClient) {
+    public AccountGatewayService(@Qualifier("accountsWebClient") WebClient webClient) {
         this.webClient = webClient;
     }
 

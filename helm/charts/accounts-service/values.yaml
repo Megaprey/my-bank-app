@@ -1,0 +1,29 @@
+replicaCount: 1
+
+image:
+  repository: bank/accounts-service
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8081
+
+env:
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://bank-accounts-db:5432/bankdb?currentSchema=accounts"
+  SPRING_DATASOURCE_USERNAME: "bank"
+  SPRING_DATASOURCE_PASSWORD: "bank"
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: "http://bank-auth-server:9000/oauth2/jwks"
+  SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: "http://bank-auth-server:9000/oauth2/token"
+  NOTIFICATIONS_SERVICE_URL: "http://bank-notifications-service:8084"
+  OAUTH2_CLIENT_ID: "accounts-client"
+  OAUTH2_CLIENT_SECRET: "accounts-secret"
+  LOG_LEVEL: "INFO"
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 384Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

@@ -1,0 +1,24 @@
+{
+  "id" : "8e50351a-7e3b-41a1-b3f3-f7b75e439b62",
+  "request" : {
+    "urlPath" : "/api/accounts/ivanov/deposit",
+    "method" : "PUT",
+    "headers" : {
+      "Content-Type" : {
+        "matches" : "application/json.*"
+      }
+    },
+    "bodyPatterns" : [ {
+      "matchesJsonPath" : "$[?(@.['amount'] == 100)]"
+    } ]
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "{\"id\":1,\"username\":\"ivanov\",\"fullName\":\"Иванов Иван\",\"birthDate\":\"2001-01-01\",\"balance\":200.00}",
+    "headers" : {
+      "Content-Type" : "application/json"
+    },
+    "transformers" : [ "response-template", "spring-cloud-contract" ]
+  },
+  "uuid" : "8e50351a-7e3b-41a1-b3f3-f7b75e439b62"
+}

@@ -1,0 +1,6 @@
+META-INF\com.bank\accounts-service\1.0.0\contracts\deposit.groovy
+META-INF\com.bank\accounts-service\1.0.0\contracts\withdraw_insufficient_funds.groovy
+META-INF\com.bank\accounts-service\1.0.0\contracts\withdraw_success.groovy
+META-INF\com.bank\accounts-service\1.0.0\mappings\deposit_success.json
+META-INF\com.bank\accounts-service\1.0.0\mappings\withdraw_insufficient_funds.json
+META-INF\com.bank\accounts-service\1.0.0\mappings\withdraw_success.json

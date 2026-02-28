@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "bank-app.fullname" . }}-test-all"
+  labels:
+    {{- include "bank-app.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: test-all-services
+      image: busybox:1.36
+      command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Testing all Bank microservices..."
+          FAILED=0
+
+          for svc in \
+            "{{ .Release.Name }}-auth-server:9000" \
+            "{{ .Release.Name }}-accounts-service:8081" \
+            "{{ .Release.Name }}-cash-service:8082" \
+            "{{ .Release.Name }}-transfer-service:8083" \
+            "{{ .Release.Name }}-notifications-service:8084" \
+            "{{ .Release.Name }}-front-ui:8080"; do
+
+            echo "Checking $svc..."
+            if wget --spider --timeout=10 "http://$svc/actuator/health" 2>/dev/null; then
+              echo "  OK: $svc is healthy"
+            else
+              echo "  FAIL: $svc is not reachable"
+              FAILED=$((FAILED + 1))
+            fi
+          done
+
+          echo ""
+          if [ $FAILED -eq 0 ]; then
+            echo "All services are healthy!"
+            exit 0
+          else
+            echo "$FAILED service(s) failed health check"
+            exit 1
+          fi
+  restartPolicy: Never

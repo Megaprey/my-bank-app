@@ -93,21 +93,12 @@ public class AuthorizationServerConfig {
                         .build())
                 .build();
 
-        RegisteredClient accountsClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("accounts-client")
-                .clientSecret(passwordEncoder.encode("accounts-secret"))
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                .scope("notifications")
-                .build();
-
         RegisteredClient cashClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("cash-client")
                 .clientSecret(passwordEncoder.encode("cash-secret"))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .scope("accounts")
-                .scope("notifications")
                 .build();
 
         RegisteredClient transferClient = RegisteredClient.withId(UUID.randomUUID().toString())
@@ -116,10 +107,9 @@ public class AuthorizationServerConfig {
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .scope("accounts")
-                .scope("notifications")
                 .build();
 
-        return new InMemoryRegisteredClientRepository(frontUiClient, accountsClient, cashClient, transferClient);
+        return new InMemoryRegisteredClientRepository(frontUiClient, cashClient, transferClient);
     }
 
     @Bean

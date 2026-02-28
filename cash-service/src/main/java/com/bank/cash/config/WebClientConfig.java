@@ -16,9 +16,6 @@ public class WebClientConfig {
     @Value("${services.accounts.url:http://localhost:8081}")
     private String accountsServiceUrl;
 
-    @Value("${services.notifications.url:http://localhost:8084}")
-    private String notificationsServiceUrl;
-
     @Bean
     public OAuth2AuthorizedClientManager authorizedClientManager(
             ClientRegistrationRepository clientRegistrationRepository,

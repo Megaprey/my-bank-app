@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "kafka.fullname" . }}-test"
+  labels:
+    {{- include "kafka.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: kafka-test
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      command:
+        - /opt/kafka/bin/kafka-broker-api-versions.sh
+        - --bootstrap-server
+        - "{{ include "kafka.fullname" . }}:9092"
+  restartPolicy: Never

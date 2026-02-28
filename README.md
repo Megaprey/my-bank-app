@@ -6,12 +6,16 @@
 | Accounts Service | 8081 | Микросервис аккаунтов |
 | Cash Service | 8082 | Микросервис пополнения/снятия |
 | Transfer Service | 8083 | Микросервис переводов |
-| Notifications Service | 8084 | Микросервис уведомлений |
+| Notifications Service | 8084 | Микросервис уведомлений (Kafka consumer) |
 | Front UI | 8080 | Веб-интерфейс (Thymeleaf) |
+| Kafka | 9092 | Брокер сообщений (KRaft mode) |
+
+Уведомления передаются через Apache Kafka (топик `bank-notifications`).
+Accounts, Cash, Transfer — продюсеры. Notifications — консьюмер.
 
 Service Discovery, Gateway и Config реализованы средствами Kubernetes (Services, Ingress, ConfigMaps/Secrets).
 
-Базы данных (accounts-db, notifications-db) развёрнуты как StatefulSets.
+Базы данных (accounts-db, notifications-db) развёрнуты как StatefulSets. Kafka — StatefulSet с PVC.
 
 ## Пользователи для входа
 

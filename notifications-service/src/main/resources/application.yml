@@ -4,6 +4,18 @@ server:
 spring:
   application:
     name: notifications-service
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: notifications-service
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.bank.api.dto
+    listener:
+      ack-mode: manual
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bankdb?currentSchema=notifications}
     username: ${SPRING_DATASOURCE_USERNAME:bank}
@@ -16,12 +28,6 @@ spring:
         default_schema: notifications
   flyway:
     schemas: notifications
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI:http://localhost:9000/oauth2/jwks}
-
 logging:
   level:
     root: ${LOG_LEVEL:WARN}

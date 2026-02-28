@@ -8,7 +8,7 @@ metadata:
     "helm.sh/hook": test
 spec:
   containers:
-    - name: wget-test
+    - name: health-test
       image: busybox:1.36
-      command: ['wget', '--spider', '--timeout=5', 'http://{{ include "notifications-service.fullname" . }}:8084/actuator/health']
+      command: ['wget', '--spider', '-q', 'http://{{ include "notifications-service.fullname" . }}:{{ .Values.service.port }}/actuator/health']
   restartPolicy: Never

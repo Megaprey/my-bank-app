@@ -7,6 +7,10 @@ ingress:
   host: bank.local
   annotations: {}
 
+kafka:
+  storage:
+    size: 1Gi
+
 accounts-db:
   database:
     name: bankdb
@@ -39,10 +43,7 @@ accounts-service:
     SPRING_DATASOURCE_USERNAME: "bank"
     SPRING_DATASOURCE_PASSWORD: "bank"
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: "http://bank-auth-server:9000/oauth2/jwks"
-    SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: "http://bank-auth-server:9000/oauth2/token"
-    NOTIFICATIONS_SERVICE_URL: "http://bank-notifications-service:8084"
-    OAUTH2_CLIENT_ID: "accounts-client"
-    OAUTH2_CLIENT_SECRET: "accounts-secret"
+    KAFKA_BOOTSTRAP_SERVERS: "bank-kafka:9092"
     LOG_LEVEL: "INFO"
 
 cash-service:
@@ -51,7 +52,7 @@ cash-service:
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: "http://bank-auth-server:9000/oauth2/jwks"
     SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: "http://bank-auth-server:9000/oauth2/token"
     ACCOUNTS_SERVICE_URL: "http://bank-accounts-service:8081"
-    NOTIFICATIONS_SERVICE_URL: "http://bank-notifications-service:8084"
+    KAFKA_BOOTSTRAP_SERVERS: "bank-kafka:9092"
     OAUTH2_CLIENT_ID: "cash-client"
     OAUTH2_CLIENT_SECRET: "cash-secret"
     LOG_LEVEL: "INFO"
@@ -62,7 +63,7 @@ transfer-service:
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: "http://bank-auth-server:9000/oauth2/jwks"
     SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: "http://bank-auth-server:9000/oauth2/token"
     ACCOUNTS_SERVICE_URL: "http://bank-accounts-service:8081"
-    NOTIFICATIONS_SERVICE_URL: "http://bank-notifications-service:8084"
+    KAFKA_BOOTSTRAP_SERVERS: "bank-kafka:9092"
     OAUTH2_CLIENT_ID: "transfer-client"
     OAUTH2_CLIENT_SECRET: "transfer-secret"
     LOG_LEVEL: "INFO"
@@ -73,7 +74,7 @@ notifications-service:
     SPRING_DATASOURCE_URL: "jdbc:postgresql://bank-notifications-db:5432/bankdb?currentSchema=notifications"
     SPRING_DATASOURCE_USERNAME: "bank"
     SPRING_DATASOURCE_PASSWORD: "bank"
-    SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: "http://bank-auth-server:9000/oauth2/jwks"
+    KAFKA_BOOTSTRAP_SERVERS: "bank-kafka:9092"
     LOG_LEVEL: "INFO"
 
 front-ui:

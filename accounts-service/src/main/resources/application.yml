@@ -1,25 +1,16 @@
 server:
   port: 8081
 
-resilience4j:
-  circuitbreaker:
-    instances:
-      notificationClient:
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 10s
-        sliding-window-size: 10
-  retry:
-    instances:
-      notificationClient:
-        max-attempts: 3
-        wait-duration: 500ms
-        retry-exceptions:
-          - org.springframework.web.reactive.function.client.WebClientResponseException
-          - java.io.IOException
-
 spring:
   application:
     name: accounts-service
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/bankdb?currentSchema=accounts}
     username: ${SPRING_DATASOURCE_USERNAME:bank}
@@ -37,21 +28,6 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI:http://localhost:9000/oauth2/jwks}
-      client:
-        registration:
-          accounts-client:
-            provider: auth-server
-            client-id: ${OAUTH2_CLIENT_ID:accounts-client}
-            client-secret: ${OAUTH2_CLIENT_SECRET:accounts-secret}
-            authorization-grant-type: client_credentials
-            scope: notifications
-        provider:
-          auth-server:
-            token-uri: ${SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI:http://localhost:9000/oauth2/token}
-
-services:
-  notifications:
-    url: ${NOTIFICATIONS_SERVICE_URL:http://localhost:8084}
 
 logging:
   level:

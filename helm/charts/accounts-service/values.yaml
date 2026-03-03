@@ -14,10 +14,7 @@ env:
   SPRING_DATASOURCE_USERNAME: "bank"
   SPRING_DATASOURCE_PASSWORD: "bank"
   SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: "http://bank-auth-server:9000/oauth2/jwks"
-  SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: "http://bank-auth-server:9000/oauth2/token"
-  NOTIFICATIONS_SERVICE_URL: "http://bank-notifications-service:8084"
-  OAUTH2_CLIENT_ID: "accounts-client"
-  OAUTH2_CLIENT_SECRET: "accounts-secret"
+  KAFKA_BOOTSTRAP_SERVERS: "bank-kafka:9092"
   LOG_LEVEL: "INFO"
 
 resources:

@@ -13,7 +13,7 @@ env:
   SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: "http://bank-auth-server:9000/oauth2/jwks"
   SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: "http://bank-auth-server:9000/oauth2/token"
   ACCOUNTS_SERVICE_URL: "http://bank-accounts-service:8081"
-  NOTIFICATIONS_SERVICE_URL: "http://bank-notifications-service:8084"
+  KAFKA_BOOTSTRAP_SERVERS: "bank-kafka:9092"
   OAUTH2_CLIENT_ID: "cash-client"
   OAUTH2_CLIENT_SECRET: "cash-secret"
   LOG_LEVEL: "INFO"

@@ -33,3 +33,15 @@ dependencies:
   - name: front-ui
     version: 1.0.0
     repository: "file://charts/front-ui"
+  - name: zipkin
+    version: 1.0.0
+    repository: "file://charts/zipkin"
+  - name: prometheus
+    version: 1.0.0
+    repository: "file://charts/prometheus"
+  - name: grafana
+    version: 1.0.0
+    repository: "file://charts/grafana"
+  - name: elk
+    version: 1.0.0
+    repository: "file://charts/elk"

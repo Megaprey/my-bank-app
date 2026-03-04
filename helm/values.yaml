@@ -35,6 +35,8 @@ auth-server:
     AUTH_ISSUER_URI: "http://bank-auth-server:9000"
     FRONT_UI_REDIRECT_URI: "http://bank.local/login/oauth2/code/front-ui-client"
     LOG_LEVEL: "INFO"
+    ZIPKIN_URL: "http://bank-zipkin:9411"
+    LOGSTASH_URL: "bank-elk-logstash:5000"
 
 accounts-service:
   replicaCount: 1
@@ -45,6 +47,8 @@ accounts-service:
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: "http://bank-auth-server:9000/oauth2/jwks"
     KAFKA_BOOTSTRAP_SERVERS: "bank-kafka:9092"
     LOG_LEVEL: "INFO"
+    ZIPKIN_URL: "http://bank-zipkin:9411"
+    LOGSTASH_URL: "bank-elk-logstash:5000"
 
 cash-service:
   replicaCount: 1
@@ -56,6 +60,8 @@ cash-service:
     OAUTH2_CLIENT_ID: "cash-client"
     OAUTH2_CLIENT_SECRET: "cash-secret"
     LOG_LEVEL: "INFO"
+    ZIPKIN_URL: "http://bank-zipkin:9411"
+    LOGSTASH_URL: "bank-elk-logstash:5000"
 
 transfer-service:
   replicaCount: 1
@@ -67,6 +73,8 @@ transfer-service:
     OAUTH2_CLIENT_ID: "transfer-client"
     OAUTH2_CLIENT_SECRET: "transfer-secret"
     LOG_LEVEL: "INFO"
+    ZIPKIN_URL: "http://bank-zipkin:9411"
+    LOGSTASH_URL: "bank-elk-logstash:5000"
 
 notifications-service:
   replicaCount: 1
@@ -76,6 +84,8 @@ notifications-service:
     SPRING_DATASOURCE_PASSWORD: "bank"
     KAFKA_BOOTSTRAP_SERVERS: "bank-kafka:9092"
     LOG_LEVEL: "INFO"
+    ZIPKIN_URL: "http://bank-zipkin:9411"
+    LOGSTASH_URL: "bank-elk-logstash:5000"
 
 front-ui:
   replicaCount: 1
@@ -90,3 +100,22 @@ front-ui:
     OAUTH2_CLIENT_ID: "front-ui-client"
     OAUTH2_CLIENT_SECRET: "front-ui-secret"
     LOG_LEVEL: "INFO"
+    ZIPKIN_URL: "http://bank-zipkin:9411"
+    LOGSTASH_URL: "bank-elk-logstash:5000"
+
+zipkin:
+  externalHost: zipkin.external
+
+prometheus:
+  externalHost: prometheus.external
+
+grafana:
+  externalHost: grafana.external
+
+elk:
+  elasticsearch:
+    externalHost: elasticsearch.external
+  logstash:
+    externalHost: logstash.external
+  kibana:
+    externalHost: kibana.external

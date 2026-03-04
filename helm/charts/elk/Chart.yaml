@@ -1,0 +1,6 @@
+apiVersion: v2
+name: elk
+description: ExternalName services for ELK stack (Elasticsearch, Logstash, Kibana)
+type: application
+version: 1.0.0
+appVersion: "8.13.0"

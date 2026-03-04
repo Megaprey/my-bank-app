@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "elk.fullname" . }}-kibana
+  labels:
+    {{- include "elk.labels" . | nindent 4 }}
+    app.kubernetes.io/component: kibana
+spec:
+  type: ExternalName
+  externalName: {{ .Values.kibana.externalHost }}
+  ports:
+    - port: {{ .Values.kibana.port }}
+      targetPort: {{ .Values.kibana.port }}
+      protocol: TCP
+      name: http

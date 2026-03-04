@@ -1,0 +1,11 @@
+elasticsearch:
+  externalHost: elasticsearch.external
+  port: 9200
+
+logstash:
+  externalHost: logstash.external
+  port: 5000
+
+kibana:
+  externalHost: kibana.external
+  port: 5601

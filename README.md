@@ -13,7 +13,7 @@
 | Prometheus | 9090 | Сбор и хранение метрик |
 | Grafana | 3000 | Визуализация метрик и дашборды |
 | Elasticsearch | 9200 | Хранение и поиск логов |
-| Logstash | 5000 | Приём и обработка логов |
+| Logstash | — | Приём логов из Kafka и обработка |
 | Kibana | 5601 | Визуализация логов |
 
 Уведомления передаются через Apache Kafka (топик `bank-notifications`).
@@ -68,11 +68,11 @@ docker compose up --build
 
 ### Кастомные бизнес-метрики
 
-| Метрика | Описание | Теги |
-|---------|----------|------|
-| `bank_cash_withdraw_failures_total` | Неуспешные попытки снятия денег | `login` |
-| `bank_transfer_failures_total` | Неуспешные попытки перевода | `from_login`, `to_login` |
-| `bank_notification_failures_total` | Ошибки отправки нотификаций | `login` |
+| Метрика | Описание |
+|---------|----------|
+| `bank_cash_withdraw_failures_total` | Неуспешные попытки снятия денег |
+| `bank_transfer_failures_total` | Неуспешные попытки перевода |
+| `bank_notification_failures_total` | Ошибки отправки нотификаций |
 
 ### Алерты (Prometheus)
 
@@ -98,7 +98,8 @@ docker compose up --build
 - **Kibana:** http://localhost:5601
 - **Формат логов:** JSON (LogstashEncoder), единый для всех сервисов (паттерн Microservice Chassis)
 - **Trace/Span ID:** автоматически включены в каждый лог через MDC (Micrometer Tracing)
-- **Logstash pipeline:** TCP input (port 5000) → фильтрация (маскировка паролей/номеров) → Elasticsearch
+- **Доставка логов:** Сервисы → Kafka (топик `bank-logs`) → Logstash (Kafka input plugin) → Elasticsearch
+- **Logstash pipeline:** Kafka input → фильтрация (маскировка паролей/номеров) → Elasticsearch
 - **Конфигурация:** `elk/logstash/logstash.conf`
 
 ### Уровни логирования

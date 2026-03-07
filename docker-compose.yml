@@ -48,8 +48,8 @@ services:
     ports:
       - "9000:9000"
     environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       ZIPKIN_URL: http://zipkin:9411
-      LOGSTASH_URL: logstash:5000
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:9000/actuator/health"]
       interval: 10s
@@ -68,7 +68,6 @@ services:
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: http://auth-server:9000/oauth2/jwks
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       ZIPKIN_URL: http://zipkin:9411
-      LOGSTASH_URL: logstash:5000
     depends_on:
       postgres:
         condition: service_healthy
@@ -87,7 +86,6 @@ services:
       ACCOUNTS_SERVICE_URL: http://accounts-service:8081
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       ZIPKIN_URL: http://zipkin:9411
-      LOGSTASH_URL: logstash:5000
     depends_on:
       auth-server:
         condition: service_healthy
@@ -106,7 +104,6 @@ services:
       ACCOUNTS_SERVICE_URL: http://accounts-service:8081
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       ZIPKIN_URL: http://zipkin:9411
-      LOGSTASH_URL: logstash:5000
     depends_on:
       auth-server:
         condition: service_healthy
@@ -125,7 +122,6 @@ services:
       SPRING_DATASOURCE_PASSWORD: bank
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       ZIPKIN_URL: http://zipkin:9411
-      LOGSTASH_URL: logstash:5000
     depends_on:
       postgres:
         condition: service_healthy
@@ -144,8 +140,8 @@ services:
       ACCOUNTS_SERVICE_URL: http://accounts-service:8081
       CASH_SERVICE_URL: http://cash-service:8082
       TRANSFER_SERVICE_URL: http://transfer-service:8083
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       ZIPKIN_URL: http://zipkin:9411
-      LOGSTASH_URL: logstash:5000
     depends_on:
       auth-server:
         condition: service_healthy
@@ -169,8 +165,6 @@ services:
 
   logstash:
     image: logstash:8.13.0
-    ports:
-      - "5000:5000"
     volumes:
       - ./elk/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
       - ./elk/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml
@@ -178,6 +172,8 @@ services:
       LS_JAVA_OPTS: "-Xms256m -Xmx256m"
     depends_on:
       elasticsearch:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
 
   kibana:

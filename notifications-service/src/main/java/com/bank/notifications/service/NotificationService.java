@@ -30,7 +30,6 @@ public class NotificationService {
             log.info("Notification sent: user={}, message={}", dto.username(), dto.message());
         } catch (Exception e) {
             Counter.builder("bank.notification.failures")
-                    .tag("login", dto.username())
                     .description("Failed notification send attempts")
                     .register(meterRegistry)
                     .increment();

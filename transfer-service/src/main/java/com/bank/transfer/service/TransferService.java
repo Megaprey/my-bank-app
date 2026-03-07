@@ -37,8 +37,6 @@ public class TransferService {
             newBalance = senderAccount.balance();
         } catch (Exception e) {
             Counter.builder("bank.transfer.failures")
-                    .tag("from_login", fromUsername)
-                    .tag("to_login", toUsername)
                     .description("Failed money transfer attempts")
                     .register(meterRegistry)
                     .increment();
@@ -60,8 +58,6 @@ public class TransferService {
             return new TransferResponseDto(message, newBalance);
         } catch (Exception e) {
             Counter.builder("bank.transfer.failures")
-                    .tag("from_login", fromUsername)
-                    .tag("to_login", toUsername)
                     .description("Failed money transfer attempts")
                     .register(meterRegistry)
                     .increment();

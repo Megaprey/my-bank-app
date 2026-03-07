@@ -42,7 +42,6 @@ public class CashService {
             return new CashResponseDto(message, account.balance());
         } catch (Exception e) {
             Counter.builder("bank.cash.withdraw.failures")
-                    .tag("login", username)
                     .description("Failed cash withdrawal attempts")
                     .register(meterRegistry)
                     .increment();

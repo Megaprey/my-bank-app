@@ -15,9 +15,9 @@
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
-          "expr": "rate(bank_cash_withdraw_failures_total[5m]) by (login)",
+          "expr": "rate(bank_cash_withdraw_failures_total[5m])",
           "refId": "A",
-          "legendFormat": "{{login}}"
+          "legendFormat": "withdrawals"
         }
       ],
       "fieldConfig": {
@@ -39,9 +39,9 @@
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
-          "expr": "rate(bank_transfer_failures_total[5m]) by (from_login, to_login)",
+          "expr": "rate(bank_transfer_failures_total[5m])",
           "refId": "A",
-          "legendFormat": "{{from_login}} → {{to_login}}"
+          "legendFormat": "transfers"
         }
       ],
       "fieldConfig": {
@@ -63,9 +63,9 @@
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "targets": [
         {
-          "expr": "rate(bank_notification_failures_total[5m]) by (login)",
+          "expr": "rate(bank_notification_failures_total[5m])",
           "refId": "A",
-          "legendFormat": "{{login}}"
+          "legendFormat": "notifications"
         }
       ],
       "fieldConfig": {

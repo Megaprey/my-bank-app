@@ -41,8 +41,8 @@ auth-server:
     AUTH_ISSUER_URI: "https://bank.example.com"
     FRONT_UI_REDIRECT_URI: "https://bank.example.com/login/oauth2/code/front-ui-client"
     LOG_LEVEL: "WARN"
+    KAFKA_BOOTSTRAP_SERVERS: "bank-kafka:9092"
     ZIPKIN_URL: "http://bank-zipkin:9411"
-    LOGSTASH_URL: "bank-elk-logstash:5000"
   resources:
     requests:
       cpu: 300m
@@ -61,7 +61,6 @@ accounts-service:
     KAFKA_BOOTSTRAP_SERVERS: "bank-kafka:9092"
     LOG_LEVEL: "WARN"
     ZIPKIN_URL: "http://bank-zipkin:9411"
-    LOGSTASH_URL: "bank-elk-logstash:5000"
   resources:
     requests:
       cpu: 300m
@@ -81,7 +80,6 @@ cash-service:
     OAUTH2_CLIENT_SECRET: "cash-secret"
     LOG_LEVEL: "WARN"
     ZIPKIN_URL: "http://bank-zipkin:9411"
-    LOGSTASH_URL: "bank-elk-logstash:5000"
   resources:
     requests:
       cpu: 300m
@@ -101,7 +99,6 @@ transfer-service:
     OAUTH2_CLIENT_SECRET: "transfer-secret"
     LOG_LEVEL: "WARN"
     ZIPKIN_URL: "http://bank-zipkin:9411"
-    LOGSTASH_URL: "bank-elk-logstash:5000"
   resources:
     requests:
       cpu: 300m
@@ -119,7 +116,6 @@ notifications-service:
     KAFKA_BOOTSTRAP_SERVERS: "bank-kafka:9092"
     LOG_LEVEL: "WARN"
     ZIPKIN_URL: "http://bank-zipkin:9411"
-    LOGSTASH_URL: "bank-elk-logstash:5000"
   resources:
     requests:
       cpu: 300m
@@ -141,8 +137,8 @@ front-ui:
     OAUTH2_CLIENT_ID: "front-ui-client"
     OAUTH2_CLIENT_SECRET: "front-ui-secret"
     LOG_LEVEL: "WARN"
+    KAFKA_BOOTSTRAP_SERVERS: "bank-kafka:9092"
     ZIPKIN_URL: "http://bank-zipkin:9411"
-    LOGSTASH_URL: "bank-elk-logstash:5000"
   resources:
     requests:
       cpu: 300m

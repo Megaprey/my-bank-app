@@ -47,6 +47,9 @@ services:
     build: ./auth-server
     ports:
       - "9000:9000"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      ZIPKIN_URL: http://zipkin:9411
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:9000/actuator/health"]
       interval: 10s
@@ -64,6 +67,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: bank
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWKSETURI: http://auth-server:9000/oauth2/jwks
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      ZIPKIN_URL: http://zipkin:9411
     depends_on:
       postgres:
         condition: service_healthy
@@ -81,6 +85,7 @@ services:
       SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: http://auth-server:9000/oauth2/token
       ACCOUNTS_SERVICE_URL: http://accounts-service:8081
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      ZIPKIN_URL: http://zipkin:9411
     depends_on:
       auth-server:
         condition: service_healthy
@@ -98,6 +103,7 @@ services:
       SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_AUTHSERVER_TOKENURI: http://auth-server:9000/oauth2/token
       ACCOUNTS_SERVICE_URL: http://accounts-service:8081
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      ZIPKIN_URL: http://zipkin:9411
     depends_on:
       auth-server:
         condition: service_healthy
@@ -115,6 +121,7 @@ services:
       SPRING_DATASOURCE_USERNAME: bank
       SPRING_DATASOURCE_PASSWORD: bank
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      ZIPKIN_URL: http://zipkin:9411
     depends_on:
       postgres:
         condition: service_healthy
@@ -133,11 +140,95 @@ services:
       ACCOUNTS_SERVICE_URL: http://accounts-service:8081
       CASH_SERVICE_URL: http://cash-service:8082
       TRANSFER_SERVICE_URL: http://transfer-service:8083
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      ZIPKIN_URL: http://zipkin:9411
     depends_on:
       auth-server:
         condition: service_healthy
       accounts-service:
         condition: service_started
+
+  elasticsearch:
+    image: elasticsearch:8.13.0
+    ports:
+      - "9200:9200"
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  logstash:
+    image: logstash:8.13.0
+    volumes:
+      - ./elk/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./elk/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml
+    environment:
+      LS_JAVA_OPTS: "-Xms256m -Xmx256m"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
+  kibana:
+    image: kibana:8.13.0
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      prometheus:
+        condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/alert-rules.yml:/etc/prometheus/alert-rules.yml
+    depends_on:
+      accounts-service:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:9090/-/healthy || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  zipkin:
+    image: openzipkin/zipkin:latest
+    ports:
+      - "9411:9411"
+    environment:
+      STORAGE_TYPE: mem
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:9411/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 volumes:
   kafkadata:

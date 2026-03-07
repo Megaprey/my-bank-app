@@ -9,6 +9,12 @@
 | Notifications Service | 8084 | Микросервис уведомлений (Kafka consumer) |
 | Front UI | 8080 | Веб-интерфейс (Thymeleaf) |
 | Kafka | 9092 | Брокер сообщений (KRaft mode) |
+| Zipkin | 9411 | Распределённый трейсинг |
+| Prometheus | 9090 | Сбор и хранение метрик |
+| Grafana | 3000 | Визуализация метрик и дашборды |
+| Elasticsearch | 9200 | Хранение и поиск логов |
+| Logstash | — | Приём логов из Kafka и обработка |
+| Kibana | 5601 | Визуализация логов |
 
 Уведомления передаются через Apache Kafka (топик `bank-notifications`).
 Accounts, Cash, Transfer — продюсеры. Notifications — консьюмер.
@@ -38,6 +44,72 @@ docker compose up --build
 ```
 
 Приложение будет доступно по адресу http://localhost:8080.
+
+## Стек наблюдаемости (Observability)
+
+Компоненты стека наблюдаемости развёрнуты снаружи Kubernetes-кластера (через Docker Compose).
+Конфигурации хранятся в подпроектах `zipkin/`, `prometheus/`, `grafana/`, `elk/`.
+Для доступа изнутри Kubernetes используются Helm-сабчарты с ExternalName Services.
+
+### Zipkin — распределённый трейсинг
+
+- **UI:** http://localhost:9411
+- **Интеграция:** Micrometer Tracing + Brave → трейсы HTTP-запросов (входящих/исходящих), JDBC, Kafka
+- **Конфигурация:** переменная `ZIPKIN_URL` в каждом сервисе
+- **Хранилище:** in-memory
+
+### Prometheus — метрики
+
+- **UI:** http://localhost:9090
+- **Endpoint:** `/actuator/prometheus` на каждом сервисе
+- **Scrape interval:** 15s
+- **Стандартные метрики:** HTTP RPS, 4xx/5xx, персентили таймингов (P50, P95, P99), JVM (memory, CPU, threads)
+- **Конфигурация:** `prometheus/prometheus.yml`
+
+### Кастомные бизнес-метрики
+
+| Метрика | Описание |
+|---------|----------|
+| `bank_cash_withdraw_failures_total` | Неуспешные попытки снятия денег |
+| `bank_transfer_failures_total` | Неуспешные попытки перевода |
+| `bank_notification_failures_total` | Ошибки отправки нотификаций |
+
+### Алерты (Prometheus)
+
+Правила алертов определены в `prometheus/alert-rules.yml`:
+- `HighHttpErrorRate` — высокий уровень 5xx ошибок
+- `HighHttpLatency` — P95 latency > 2s
+- `HighFailedWithdrawals` — частые неуспешные снятия
+- `HighFailedTransfers` — частые неуспешные переводы
+- `NotificationSendFailures` — частые ошибки нотификаций
+- `ServiceDown` — сервис недоступен
+
+### Grafana — дашборды
+
+- **UI:** http://localhost:3000 (admin/admin)
+- **Datasource:** Prometheus (автоматически подключен через provisioning)
+- **Дашборды** (автоматически загружены из `grafana/dashboards/`):
+  - **HTTP Metrics** — RPS, 4xx, 5xx, P50/P95/P99 по сервисам
+  - **JVM Metrics** — Heap/Non-Heap memory, CPU, Threads по сервисам
+  - **Business Metrics** — неуспешные снятия, переводы, нотификации
+
+### ELK Stack — логирование
+
+- **Kibana:** http://localhost:5601
+- **Формат логов:** JSON (LogstashEncoder), единый для всех сервисов (паттерн Microservice Chassis)
+- **Trace/Span ID:** автоматически включены в каждый лог через MDC (Micrometer Tracing)
+- **Доставка логов:** Сервисы → Kafka (топик `bank-logs`) → Logstash (Kafka input plugin) → Elasticsearch
+- **Logstash pipeline:** Kafka input → фильтрация (маскировка паролей/номеров) → Elasticsearch
+- **Конфигурация:** `elk/logstash/logstash.conf`
+
+### Уровни логирования
+
+| Уровень | Назначение |
+|---------|------------|
+| `ERROR` | Ошибки (исключения, fallback, невозможность отправки) |
+| `WARN` | Нештатные ситуации (недостаточно средств, компенсация) |
+| `INFO` | Ключевые бизнес-события (успешный перевод, создание счёта) |
+| `DEBUG` | Диагностика (входные параметры, промежуточные результаты) |
 
 ## Развёртывание в Kubernetes
 

@@ -1,0 +1,2 @@
+externalHost: zipkin.external
+port: 9411

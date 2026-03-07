@@ -22,7 +22,14 @@ public class NotificationKafkaListener {
     @KafkaListener(topics = "bank-notifications", groupId = "notifications-service")
     public void onMessage(NotificationDto dto, Acknowledgment acknowledgment) {
         log.debug("[NotificationKafkaListener.onMessage] received: username={}", dto.username());
-        notificationService.send(dto);
-        acknowledgment.acknowledge();
+        try {
+            notificationService.send(dto);
+            acknowledgment.acknowledge();
+            log.info("[NotificationKafkaListener.onMessage] processed and acknowledged: username={}", dto.username());
+        } catch (Exception e) {
+            log.error("[NotificationKafkaListener.onMessage] failed to process: username={}, error={}",
+                    dto.username(), e.getMessage());
+            throw e;
+        }
     }
 }

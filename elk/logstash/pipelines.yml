@@ -1,0 +1,2 @@
+- pipeline.id: bank-logs
+  path.config: "/usr/share/logstash/pipeline/logstash.conf"

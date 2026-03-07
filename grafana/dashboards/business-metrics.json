@@ -1,0 +1,90 @@
+{
+  "id": null,
+  "uid": "business-metrics",
+  "title": "Business Metrics",
+  "tags": ["business", "banking"],
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Failed Withdrawals",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 9 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "rate(bank_cash_withdraw_failures_total[5m])",
+          "refId": "A",
+          "legendFormat": "withdrawals"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": {},
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "calcs": [] }
+      }
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Failed Transfers",
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 9 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "rate(bank_transfer_failures_total[5m])",
+          "refId": "A",
+          "legendFormat": "transfers"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": {},
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "calcs": [] }
+      }
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Notification Failures",
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 9 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "rate(bank_notification_failures_total[5m])",
+          "refId": "A",
+          "legendFormat": "notifications"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "custom": {},
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "calcs": [] }
+      }
+    }
+  ],
+  "time": { "from": "now-15m", "to": "now" },
+  "refresh": "10s",
+  "schemaVersion": 38,
+  "version": 1,
+  "links": [],
+  "templating": { "list": [] },
+  "annotations": { "list": [] }
+}

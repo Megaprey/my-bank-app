@@ -1,0 +1,60 @@
+groups:
+  - name: http_alerts
+    rules:
+      - alert: HighHttpErrorRate
+        expr: sum(rate(http_server_requests_seconds_count{status=~"5.."}[5m])) by (application) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High 5xx error rate on {{ $labels.application }}"
+          description: "Service {{ $labels.application }} has more than 0.1 req/s of 5xx errors for 5 minutes."
+
+      - alert: HighHttpLatency
+        expr: histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[5m])) by (le, application)) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP latency on {{ $labels.application }}"
+          description: "P95 latency on {{ $labels.application }} exceeds 2 seconds for 5 minutes."
+
+  - name: business_alerts
+    rules:
+      - alert: HighFailedWithdrawals
+        expr: rate(bank_cash_withdraw_failures_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High failed withdrawal rate"
+          description: "Failed withdrawals exceed 0.05/sec for 5 minutes."
+
+      - alert: HighFailedTransfers
+        expr: rate(bank_transfer_failures_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High failed transfer rate"
+          description: "Failed transfers exceed 0.05/sec for 5 minutes."
+
+      - alert: NotificationSendFailures
+        expr: rate(bank_notification_failures_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Notification send failures"
+          description: "Notification failures exceed 0.05/sec for 5 minutes."
+
+  - name: availability_alerts
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "{{ $labels.job }} has been down for more than 1 minute."
